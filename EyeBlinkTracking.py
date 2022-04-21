@@ -79,8 +79,8 @@ def blinkRatio(img, landmarks, right_indices, left_indices):
 
 if __name__ == '__main__':
 
-    #cap = cv2.VideoCapture(0)
-    cap = cv2.VideoCapture("sample_resize.mp4")
+    cap = cv2.VideoCapture(0)
+    #cap = cv2.VideoCapture("sample_resize.mp4")
     pTime = time.time()
 
     # Video writer
@@ -100,9 +100,11 @@ if __name__ == '__main__':
     ratio_record = []
     blink_count = 0
     blink_durations = []
+    blink_timestamp = []
 
     # eye status, 0=open, 1=close
     eye_status = 0
+    video_start_time = time.time()
     with map_face_mesh.FaceMesh(max_num_faces=1, min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:
         while True:
             cTime = time.time()
@@ -168,6 +170,7 @@ if __name__ == '__main__':
                     eye_status = 1
                     # start timer
                     blinkTime_s = time.time()
+                    blink_timestamp.append(blinkTime_s - video_start_time)
                 elif len(ratio_record) > 1 and ratio_record[-2] >= BLINK_THRES and ratio_record[-1] < BLINK_THRES:
                     # opened
                     eye_status = 0
@@ -190,8 +193,9 @@ if __name__ == '__main__':
             key = cv2.waitKey(1)
             if key==ord('q') or key == ord('Q'):
                 break
-        print("Blink times and durations:")
+        print("Blink times, timestamps(sec) and durations:")
         print(len(blink_durations))
+        print(blink_timestamp)
         print(blink_durations)
         figure, axis = plt.subplots(1, 2)
 
